@@ -73,11 +73,7 @@
       "severity": "Error",
       "checkData": true
     },
-    "functional_writing": {
-      "exclude": [],
-      "severity": "Warning",
-      "ignoreExceptions": true
-    },
+    "functional_writing": false,
     "global_class": true,
     "identical_conditions": true,
     "identical_contents": false,
@@ -167,12 +163,7 @@
     },
     "sicf_consistency": true,
     "space_before_colon": true,
-    "space_before_dot": {
-      "exclude": [],
-      "severity": "Warning",
-      "ignoreGlobalDefinition": true,
-      "ignoreExceptions": true
-    },
+    "space_before_dot": false,
     "sql_escape_host_variables": false,
     "start_at_tab": false,
     "superclass_final": true,
