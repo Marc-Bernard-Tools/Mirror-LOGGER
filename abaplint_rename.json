@@ -16,7 +16,7 @@
   ],
   "rename": {
     "output": "output",
-    "patterns": [{"type": "CLAS|INTF", "oldName": "Z(.*)_ABAP_STRING_MAP", "newName": "/MBTOOLS/$1_STRING_MAP"}]
+    "patterns": [{"type": "CLAS|INTF", "oldName": "Z(.*)_LOGGER", "newName": "/MBTOOLS/$1_LOGGER"}]
   },
   "syntax": {
     "version": "v702",
