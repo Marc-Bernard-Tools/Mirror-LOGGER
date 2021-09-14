@@ -1,11 +1,11 @@
 {
-  "name": "stringmap_mirror",
+  "name": "logger_mirror",
   "private": true,
   "version": "1.0.0",
-  "description": "Mirror of (abap string map)[https://github.com/sbcgua/abap-string-map] to /MBTOOLS/ namespace",
+  "description": "Mirror of (ABAP Logger)[https://github.com/https://github.com/ABAP-Logger/ABAP-Logger] to /MBTOOLS/ namespace",
   "main": "index.js",
   "scripts": {
-    "clone": "git clone https://github.com/sbcgua/abap-string-map input",
+    "clone": "git clone https://github.com/https://github.com/ABAP-Logger/ABAP-Logger",
     "lint_result": "abaplint abaplint.json",
     "fix_result": "abaplint abaplint.json --fix",
     "rename": "abaplint abaplint_rename.json --rename && rm -f src/* && cp output/input/src/* src/",
@@ -13,14 +13,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Marc-Bernard-Tools/Mirror-STRINGMAP.git"
+    "url": "git+https://github.com/Marc-Bernard-Tools/Mirror-LOGGER.git"
   },
-  "author": "Alexander Tsybulsky",
+  "author": "Eric Peterson",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sbcgua/abap-string-map/issues"
+    "url": "https://github.com/ABAP-Logger/ABAP-Logger/issues"
   },
-  "homepage": "https://github.com/sbcgua/abap-string-map",
+  "homepage": "https://github.com/ABAP-Logger/ABAP-Logger",
   "dependencies": {
     "@abaplint/cli": "^2.78.13"
   }
