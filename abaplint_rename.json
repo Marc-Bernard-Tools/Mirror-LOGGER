@@ -59,7 +59,7 @@
     "empty_statement": true,
     "empty_structure": false,
     "exit_or_check": false,
-    "exporting": true,
+    "exporting": false,
     "forbidden_identifier": false,
     "forbidden_pseudo_and_pragma": false,
     "forbidden_void_type": {
@@ -75,7 +75,7 @@
     },
     "functional_writing": {
       "exclude": [],
-      "severity": "Error",
+      "severity": "Warning",
       "ignoreExceptions": true
     },
     "global_class": true,
@@ -129,7 +129,7 @@
       "setExtended": true,
       "withHeaderLine": true,
       "fieldSymbolStructure": true,
-      "typePools": true,
+      "typePools": false,
       "load": false
     },
     "omit_parameter_name": false,
@@ -169,12 +169,12 @@
     "space_before_colon": true,
     "space_before_dot": {
       "exclude": [],
-      "severity": "Error",
+      "severity": "Warning",
       "ignoreGlobalDefinition": true,
       "ignoreExceptions": true
     },
     "sql_escape_host_variables": false,
-    "start_at_tab": true,
+    "start_at_tab": false,
     "superclass_final": true,
     "tabl_enhancement_category": true,
     "try_without_catch": true,
