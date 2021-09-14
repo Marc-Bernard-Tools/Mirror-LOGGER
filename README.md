@@ -1,7 +1,7 @@
-# Mirror-STRINGMAP
+# Mirror-LOGGER
 
-abap string map mirror
+ABAP Logger Mirror
 
-https://github.com/sbcgua/abap-string-map
+https://github.com/ABAP-Logger/ABAP-Logger
 
-Under [MIT License](https://github.com/sbcgua/abap-string-map/blob/master/LICENSE): Copyright (c) 2020 Alexander Tsybulsky
+Under [MIT License](https://github.com/ABAP-Logger/ABAP-Logger/blob/master/LICENSE): Copyright (c) 2017 Eric Peterson
