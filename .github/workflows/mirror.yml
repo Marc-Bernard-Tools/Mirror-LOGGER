@@ -1,0 +1,27 @@
+name: Mirror
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '5 0 * * 0'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Use Node.js
+      uses: actions/setup-node@v2
+    - name: Run Mirror
+      run: |
+        npm install
+        npm run mirror
+        git status
+    - name: Open Pull Request
+      uses: peter-evans/create-pull-request@v3
+      with:
+        title: Automatic Update
+        labels: automerge
