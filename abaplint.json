@@ -47,7 +47,7 @@
 			"defaultKey": false,
 			"define": true,
 			"describeLines": true,
-			"exclude": [],
+			"exclude": ["testclasses.abap"],
 			"severity": "Error",
 			"statics": true
 		},
@@ -74,7 +74,7 @@
 			"move": true,
 			"refresh": true,
 			"severity": "Error",
-      		"sort": true,
+      			"sort": true,
 			"unassign": true,
 			"write": true
 		},
@@ -102,7 +102,7 @@
 		"check_subrc": {
 			"assign": true,
 			"authorityCheck": true,
-			"exclude": [],
+			"exclude": [".*"],
 			"find": true,
 			"insertDatabase": true,
 			"modifyDatabase": true,
