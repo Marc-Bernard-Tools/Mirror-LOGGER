@@ -435,9 +435,7 @@
 		"method_length": {
 			"checkForms": true,
 			"errorWhenEmpty": true,
-			"exclude": [
-				"#mbtools#.*_logger.*"
-			],
+			"exclude": [".*"],
 			"ignoreTestClasses": true,
 			"severity": "Warning",
 			"statements": 120
@@ -448,12 +446,10 @@
 		},
 		"method_parameter_names": {
 			"changing": "^C._.+$",
-			"exclude": [],
+			"exclude": [".*"],
 			"exporting": "^E._.+$",
 			"ignoreExceptions": true,
-			"ignoreNames": [
-				"P_TASK"
-			],
+			"ignoreNames": [],
 			"ignorePatterns": [],
 			"importing": "^I._.+$",
 			"patternKind": "required",
@@ -557,7 +553,7 @@
 			"severity": "Error"
 		},
 		"omit_receiving": {
-			"exclude": [],
+			"exclude": [".*"],
 			"severity": "Error"
 		},
 		"parser_702_chaining": {
