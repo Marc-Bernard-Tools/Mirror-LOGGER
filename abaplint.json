@@ -33,6 +33,7 @@
 			"allowed": [
 				"CLAS",
 				"DEVC",
+				"INTF",
 				"NSPC"
 			],
 			"exclude": [],
@@ -376,7 +377,7 @@
 		},
 		"line_length": {
 			"exclude": [],
-			"length": 120,
+			"length": 150,
 			"severity": "Error"
 		},
 		"line_only_punc": {
@@ -386,7 +387,7 @@
 		},
 		"local_class_naming": {
 			"exception": "^LCX_.+$",
-			"exclude": [],
+			"exclude": [".*"],
 			"ignoreNames": [],
 			"ignorePatterns": [],
 			"local": "^LCL_.+$",
@@ -606,7 +607,7 @@
 			"severity": "Error"
 		},
 		"prefix_is_current_class": {
-			"exclude": [],
+			"exclude": [".*"],
 			"omitMeInstanceCalls": true,
 			"severity": "Error"
 		},
@@ -736,7 +737,7 @@
 			"skipNames": []
 		},
 		"unused_variables": {
-			"exclude": [],
+			"exclude": [".*"],
 			"severity": "Error",
 			"skipNames": []
 		},
