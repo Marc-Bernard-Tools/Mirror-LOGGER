@@ -380,7 +380,7 @@
 			"severity": "Error"
 		},
 		"line_only_punc": {
-			"exclude": [],
+			"exclude": [".*"],
 			"ignoreExceptions": true,
 			"severity": "Error"
 		},
