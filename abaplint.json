@@ -127,7 +127,7 @@
 		},
 		"class_attribute_names": {
 			"constants": "^C_.+$",
-			"exclude": [],
+			"exclude": [".*"],
 			"ignoreExceptions": true,
 			"ignoreInterfaces": false,
 			"ignoreLocal": false,
@@ -399,7 +399,7 @@
 			"severity": "Error"
 		},
 		"local_variable_names": {
-			"exclude": [],
+			"exclude": [".*"],
 			"expectedConstant": "^LC_.+$",
 			"expectedData": "^L._.+$",
 			"expectedFS": "^<L._.+>$",
