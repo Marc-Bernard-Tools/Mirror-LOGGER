@@ -239,7 +239,7 @@
 			"while": true
 		},
 		"exit_or_check": {
-			"allowCheck": false,
+			"allowCheck": true,
 			"allowExit": false,
 			"exclude": [],
 			"severity": "Error"
