@@ -167,13 +167,13 @@
 			"spaces": 1
 		},
 		"cyclic_oo": {
-			"exclude": [],
+			"exclude": [".*"],
 			"severity": "Error",
 			"skip": []
 		},
 		"cyclomatic_complexity": {
 			"exclude": [],
-			"max": 22,
+			"max": 25,
 			"severity": "Error"
 		},
 		"dangerous_statement": {
@@ -268,7 +268,6 @@
 				"^int4$",
 				"^rs_c_true$",
 				"^rs_c_false$",
-				"^flag$",
 				"^sydatum$",
 				"^syindex$",
 				"^sytabix$",
@@ -703,7 +702,7 @@
 			"severity": "Error"
 		},
 		"types_naming": {
-			"exclude": [],
+			"exclude": [".*"],
 			"pattern": "^TY_.+$",
 			"severity": "Error"
 		},
