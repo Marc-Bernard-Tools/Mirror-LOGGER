@@ -43,7 +43,7 @@ CLASS /mbtools/cl_logger DEFINITION
         !auto_save      TYPE abap_bool OPTIONAL
         !second_db_conn TYPE abap_bool DEFAULT abap_true
       RETURNING
-        VALUE(r_log)    TYPE REF TO /mbtools/cl_logger.
+        VALUE(r_log)    TYPE REF TO /mbtools/cl_logger .
 
     "! Reopens an already existing log.
     "! For backwards compatibility only! Use ZCL_LOGGER_FACTORY instead.
@@ -55,7 +55,7 @@ CLASS /mbtools/cl_logger DEFINITION
         !create_if_does_not_exist TYPE abap_bool DEFAULT abap_false
         !auto_save                TYPE abap_bool OPTIONAL
       RETURNING
-        VALUE(r_log)              TYPE REF TO /mbtools/cl_logger.
+        VALUE(r_log)              TYPE REF TO /mbtools/cl_logger .
 
   PROTECTED SECTION.
 *"* protected components of class ZCL_LOGGER
@@ -69,15 +69,15 @@ CLASS /mbtools/cl_logger DEFINITION
     TYPES: BEGIN OF hrpad_message_alike,
              cause(32)    TYPE c,                          "original: hrpad_message_cause
              detail_level TYPE ballevel.
-             INCLUDE TYPE symsg.
+             INCLUDE TYPE symsg .
     TYPES: field_list   TYPE STANDARD TABLE OF hrpad_message_field_list_alike
                WITH NON-UNIQUE KEY scrrprfd.
     TYPES: END OF hrpad_message_alike.
 
 *"* private components of class ZCL_LOGGER
 *"* do not include other source files here!!!
-    DATA sec_connection           TYPE abap_bool.
-    DATA sec_connect_commit       TYPE abap_bool.
+    DATA sec_connection           TYPE abap_bool .
+    DATA sec_connect_commit       TYPE abap_bool .
     DATA settings                 TYPE REF TO /mbtools/if_logger_settings.
 
     METHODS:
@@ -93,7 +93,7 @@ get_message_handles
         IMPORTING
           msgtype                   TYPE symsgty OPTIONAL
         RETURNING
-          VALUE(rt_message_handles) TYPE bal_t_msgh,
+          VALUE(rt_message_handles) TYPE bal_t_msgh ,
 add_structure
         IMPORTING
           obj_to_log    TYPE any OPTIONAL
@@ -105,10 +105,11 @@ add_structure
           importance    TYPE balprobcl OPTIONAL
             PREFERRED PARAMETER obj_to_log
         RETURNING
-          VALUE(self)   TYPE REF TO /mbtools/if_logger.
+          VALUE(self)   TYPE REF TO /mbtools/if_logger .
 
     METHODS save_log.
 ENDCLASS.
+
 
 
 CLASS /mbtools/cl_logger IMPLEMENTATION.

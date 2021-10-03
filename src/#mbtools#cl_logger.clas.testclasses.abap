@@ -551,9 +551,9 @@ CLASS lcl_test IMPLEMENTATION.
           actual_details   TYPE bal_s_msg,
           actual_text      TYPE char200.
 
-"Solution manager doens't have BAPI_ORDER_RETURN. Therefore avoid using the concrete type
+    "Solution manager doens't have BAPI_ORDER_RETURN. Therefore avoid using the concrete type
     DATA bapi_order_return_data_ref TYPE REF TO data.
-    DATA bapi_return_temp TYPE bapiret2."these fields have the same name as BAPI_ORDER_RETURN
+    DATA bapi_return_temp TYPE bapiret2. "these fields have the same name as BAPI_ORDER_RETURN
     FIELD-SYMBOLS <bapi_order_return_structure> TYPE any.
     TRY.
         CREATE DATA bapi_order_return_data_ref TYPE ('BAPI_ORDER_RETURN').
@@ -608,12 +608,12 @@ CLASS lcl_test IMPLEMENTATION.
 
   METHOD can_log_rcomp.
     DATA:
-          msg_handle       TYPE balmsghndl,
-          expected_details TYPE bal_s_msg,
-          actual_details   TYPE bal_s_msg,
-          actual_text      TYPE char200.
+      msg_handle       TYPE balmsghndl,
+      expected_details TYPE bal_s_msg,
+      actual_details   TYPE bal_s_msg,
+      actual_text      TYPE char200.
 
-"Solution manager doens't have PROTT. Therefore avoid using the concrete type
+    "Solution manager doens't have PROTT. Therefore avoid using the concrete type
     DATA rcomp_data_ref TYPE REF TO data.
     FIELD-SYMBOLS <rcomp_structure> TYPE any.
     TRY.
@@ -676,7 +676,7 @@ CLASS lcl_test IMPLEMENTATION.
           actual_details   TYPE bal_s_msg,
           actual_text      TYPE char200.
 
-"Solution manager doens't have PROTT. Therefore avoid using the concrete type
+    "Solution manager doens't have PROTT. Therefore avoid using the concrete type
     DATA prott_data_ref TYPE REF TO data.
     FIELD-SYMBOLS <prott_structure> TYPE any.
     TRY.
@@ -827,12 +827,16 @@ CLASS lcl_test IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD can_log_chained_exceptions.
+
+    CONSTANTS c_chained_exception TYPE string VALUE 'Did not log chained exception correctly' ##NO_TEXT.
+
     DATA: main_exception     TYPE REF TO lcx_t100,
           previous_exception TYPE REF TO lcx_t100,
-          catched_exception  TYPE REF TO lcx_t100,
+          caught_exception   TYPE REF TO lcx_t100,
           msg_handle         TYPE balmsghndl,
-          act_texts          TYPE table_of_strings,
-          act_text           TYPE string.
+          msg_count          TYPE i,
+          bal_msgs           TYPE bal_tt_msg,
+          bal_msg            TYPE bal_s_msg.
 
     DEFINE exceptions_are.
       create object main_exception
@@ -857,38 +861,50 @@ CLASS lcl_test IMPLEMENTATION.
     "When
     TRY.
         RAISE EXCEPTION main_exception.
-      CATCH lcx_t100 INTO catched_exception.
-        anon_log->add( catched_exception ).
+      CATCH lcx_t100 INTO caught_exception.
+        anon_log->add( caught_exception ).
     ENDTRY.
 
     "Then
     get_messages( EXPORTING log_handle = anon_log->handle
-                  IMPORTING texts      = act_texts ).
+                  IMPORTING msg_details = bal_msgs ).
 
-    READ TABLE act_texts INDEX 1 INTO act_text.
-    cl_aunit_assert=>assert_equals(
-      exp = format_message( id = 'SABP_UNIT' no = 010 )    " 'Message 1'
-      act = act_text
-      msg = 'Did not log chained exception correctly' ).
+    DESCRIBE TABLE bal_msgs LINES msg_count.
+    cl_abap_unit_assert=>assert_equals(
+      exp = 3
+      act = msg_count
+      msg = c_chained_exception ).
 
-    READ TABLE act_texts INDEX 2 INTO act_text.
-    cl_aunit_assert=>assert_equals(
-      exp = format_message( id = 'SABP_UNIT' no = 030 )    " 'Message 2'
-      act = act_text
-      msg = 'Did not log chained exception correctly' ).
+    READ TABLE bal_msgs INDEX 1 INTO bal_msg.
+    cl_abap_unit_assert=>assert_equals(
+      exp = 'SABP_UNIT010'    " 'Message 1'
+      act = bal_msg-msgid && bal_msg-msgno
+      msg = c_chained_exception ).
 
-    READ TABLE act_texts INDEX 3 INTO act_text.
-    cl_aunit_assert=>assert_equals(
-      exp = format_message( id = 'SABP_UNIT' no = 000 v1 = 'This' v2 = 'is' v3 = 'test' v4 = 'message' )       " 'Message: This is test message'
-      act = act_text
-      msg = 'Did not log chained exception correctly' ).
+    READ TABLE bal_msgs INDEX 2 INTO bal_msg.
+    cl_abap_unit_assert=>assert_equals(
+      exp = 'SABP_UNIT030'    " 'Message 2'
+      act = bal_msg-msgid && bal_msg-msgno
+      msg = c_chained_exception ).
+
+    READ TABLE bal_msgs INDEX 3 INTO bal_msg.
+    cl_abap_unit_assert=>assert_equals(
+      exp = 'SABP_UNIT000Thisistestmessage'       " 'Message: This is test message'
+      act = bal_msg-msgid && bal_msg-msgno && bal_msg-msgv1 && bal_msg-msgv2 && bal_msg-msgv3 && bal_msg-msgv4
+      msg = c_chained_exception ).
+
   ENDMETHOD.
 
+
   METHOD can_log_batch_msgs.
+
+    CONSTANTS c_bdc_message TYPE string VALUE 'Did not log BDC return messages correctly' ##NO_TEXT.
+
     DATA: batch_msgs TYPE TABLE OF bdcmsgcoll,
           batch_msg  TYPE bdcmsgcoll,
-          act_texts  TYPE table_of_strings,
-          act_text   TYPE string.
+          bal_msgs   TYPE bal_tt_msg,
+          bal_msg    TYPE bal_s_msg,
+          msg_count  TYPE i.
 
     DEFINE batch_messages_are.
       batch_msg-msgtyp = &1.
@@ -908,28 +924,35 @@ CLASS lcl_test IMPLEMENTATION.
 
     anon_log->add( batch_msgs ).
 
-    get_messages( EXPORTING log_handle = anon_log->handle
-                  IMPORTING texts      = act_texts ).
+    get_messages( EXPORTING log_handle  = anon_log->handle
+                  IMPORTING msg_details = bal_msgs ).
 
-    READ TABLE act_texts INDEX 1 INTO act_text.
+    DESCRIBE TABLE bal_msgs LINES msg_count.
     cl_aunit_assert=>assert_equals(
-      exp = format_message( id = 'SABP_UNIT' no = 010 )    " 'Message 1'
-      act = act_text
-      msg = 'Did not log BDC return messages correctly' ).
+      exp = 3
+      act = msg_count
+      msg = c_bdc_message ).
 
-    READ TABLE act_texts INDEX 2 INTO act_text.
-    cl_aunit_assert=>assert_equals(
-      exp = format_message( id = 'SABP_UNIT' no = 030 )    " 'Message 2'
-      act = act_text
-      msg = 'Did not log BDC return messages correctly' ).
+    READ TABLE bal_msgs INDEX 1 INTO bal_msg.
+    cl_abap_unit_assert=>assert_equals(
+      exp = 'SABP_UNIT010'    " 'Message 1'
+      act = bal_msg-msgid && bal_msg-msgno
+      msg = c_bdc_message ).
 
-    READ TABLE act_texts INDEX 3 INTO act_text.
-    cl_aunit_assert=>assert_equals(
-      exp = format_message( id = 'SABP_UNIT' no = 000 v1 = 'This' v2 = 'is' v3 = 'test' v4 = 'message' )        " 'Message: This is test message'
-      act = act_text
-      msg = 'Did not log BDC return messages correctly' ).
+    READ TABLE bal_msgs INDEX 2 INTO bal_msg.
+    cl_abap_unit_assert=>assert_equals(
+      exp = 'SABP_UNIT030'    " 'Message 2'
+      act = bal_msg-msgid && bal_msg-msgno
+      msg = c_bdc_message ).
+
+    READ TABLE bal_msgs INDEX 3 INTO bal_msg.
+    cl_abap_unit_assert=>assert_equals(
+      exp = 'SABP_UNIT000Thisistestmessage'       " 'Message: This is test message'
+      act = bal_msg-msgid && bal_msg-msgno && bal_msg-msgv1 && bal_msg-msgv2 && bal_msg-msgv3 && bal_msg-msgv4
+      msg = c_bdc_message ).
 
   ENDMETHOD.
+
 
   METHOD can_log_any_simple_structure.
     TYPES: BEGIN OF ty_struct,
