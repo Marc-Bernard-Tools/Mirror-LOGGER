@@ -1,8 +1,8 @@
 INTERFACE /mbtools/if_logger
-  PUBLIC.
-  DATA handle TYPE balloghndl READ-ONLY.
-  DATA db_number TYPE balognr READ-ONLY.
-  DATA header TYPE bal_s_log READ-ONLY.
+  PUBLIC .
+  DATA handle TYPE balloghndl READ-ONLY .
+  DATA db_number TYPE balognr READ-ONLY .
+  DATA header TYPE bal_s_log READ-ONLY .
 
   METHODS add
     IMPORTING
@@ -15,7 +15,7 @@ INTERFACE /mbtools/if_logger
       importance    TYPE balprobcl OPTIONAL
         PREFERRED PARAMETER obj_to_log
     RETURNING
-      VALUE(self)   TYPE REF TO /mbtools/if_logger.
+      VALUE(self)   TYPE REF TO /mbtools/if_logger .
 
   METHODS a
     IMPORTING
@@ -27,7 +27,7 @@ INTERFACE /mbtools/if_logger
       importance    TYPE balprobcl OPTIONAL
         PREFERRED PARAMETER obj_to_log
     RETURNING
-      VALUE(self)   TYPE REF TO /mbtools/if_logger.
+      VALUE(self)   TYPE REF TO /mbtools/if_logger .
 
   METHODS e
     IMPORTING
@@ -39,7 +39,7 @@ INTERFACE /mbtools/if_logger
       importance    TYPE balprobcl OPTIONAL
         PREFERRED PARAMETER obj_to_log
     RETURNING
-      VALUE(self)   TYPE REF TO /mbtools/if_logger.
+      VALUE(self)   TYPE REF TO /mbtools/if_logger .
 
   METHODS w
     IMPORTING
@@ -51,7 +51,7 @@ INTERFACE /mbtools/if_logger
       importance    TYPE balprobcl OPTIONAL
         PREFERRED PARAMETER obj_to_log
     RETURNING
-      VALUE(self)   TYPE REF TO /mbtools/if_logger.
+      VALUE(self)   TYPE REF TO /mbtools/if_logger .
 
   METHODS i
     IMPORTING
@@ -63,7 +63,7 @@ INTERFACE /mbtools/if_logger
       importance    TYPE balprobcl OPTIONAL
         PREFERRED PARAMETER obj_to_log
     RETURNING
-      VALUE(self)   TYPE REF TO /mbtools/if_logger.
+      VALUE(self)   TYPE REF TO /mbtools/if_logger .
 
   METHODS s
     IMPORTING
@@ -75,23 +75,23 @@ INTERFACE /mbtools/if_logger
       importance    TYPE balprobcl OPTIONAL
         PREFERRED PARAMETER obj_to_log
     RETURNING
-      VALUE(self)   TYPE REF TO /mbtools/if_logger.
+      VALUE(self)   TYPE REF TO /mbtools/if_logger .
 
   METHODS has_errors
     RETURNING
-      VALUE(rv_yes) TYPE abap_bool.
+      VALUE(rv_yes) TYPE abap_bool .
 
   METHODS has_warnings
     RETURNING
-      VALUE(rv_yes) TYPE abap_bool.
+      VALUE(rv_yes) TYPE abap_bool .
 
   METHODS is_empty
     RETURNING
-      VALUE(rv_yes) TYPE abap_bool.
+      VALUE(rv_yes) TYPE abap_bool .
 
   METHODS length
     RETURNING
-      VALUE(rv_length) TYPE i.
+      VALUE(rv_length) TYPE i .
 
   "! Saves the log on demand. Intended to be called at the
   "! end of the log processing so that logs can be saved depending
@@ -99,13 +99,13 @@ INTERFACE /mbtools/if_logger
   "! If there are no error messages, it may not be desirable to save
   "! a log.
   "! If auto save is enabled, save will do nothing.
-  METHODS save.
+  METHODS save .
 
   METHODS export_to_table
     RETURNING
-      VALUE(rt_bapiret) TYPE bapirettab.
+      VALUE(rt_bapiret) TYPE bapirettab .
 
-  METHODS fullscreen.
+  METHODS fullscreen .
 
   METHODS popup
     IMPORTING

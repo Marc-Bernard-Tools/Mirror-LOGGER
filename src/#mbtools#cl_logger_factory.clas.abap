@@ -1,7 +1,7 @@
 CLASS /mbtools/cl_logger_factory DEFINITION
   PUBLIC
   FINAL
-  CREATE PRIVATE.
+  CREATE PRIVATE .
 
   PUBLIC SECTION.
 
@@ -14,7 +14,7 @@ CLASS /mbtools/cl_logger_factory DEFINITION
         context      TYPE simple OPTIONAL
         settings     TYPE REF TO /mbtools/if_logger_settings OPTIONAL
       RETURNING
-        VALUE(r_log) TYPE REF TO /mbtools/if_logger.
+        VALUE(r_log) TYPE REF TO /mbtools/if_logger .
 
     "! Reopens an already existing log.
     CLASS-METHODS open_log
@@ -25,7 +25,7 @@ CLASS /mbtools/cl_logger_factory DEFINITION
         create_if_does_not_exist TYPE abap_bool DEFAULT abap_false
         settings                 TYPE REF TO /mbtools/if_logger_settings OPTIONAL
       RETURNING
-        VALUE(r_log)             TYPE REF TO /mbtools/if_logger.
+        VALUE(r_log)             TYPE REF TO /mbtools/if_logger .
 
     "! Creates a settings object which can be modified. It can be pass on
     "! the creation of the logger to change its behavior.
@@ -35,10 +35,11 @@ CLASS /mbtools/cl_logger_factory DEFINITION
 
     CLASS-METHODS create_collection
       RETURNING
-        VALUE(r_collection) TYPE REF TO /mbtools/if_logger_collection.
+        VALUE(r_collection) TYPE REF TO /mbtools/if_logger_collection .
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
+
 
 
 CLASS /mbtools/cl_logger_factory IMPLEMENTATION.
