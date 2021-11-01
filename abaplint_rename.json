@@ -16,7 +16,7 @@
   ],
   "rename": {
     "output": "output",
-    "patterns": [{"type": "CLAS|INTF", "oldName": "Z(.*)_LOGGER", "newName": "/MBTOOLS/$1_LOGGER"}]
+    "patterns": [{"type": "CLAS|INTF", "oldName": "Z(.*)_LOGG", "newName": "/MBTOOLS/$1_LOGG"}]
   },
   "syntax": {
     "version": "v702",
