@@ -196,9 +196,7 @@
 			"severity": "Error"
 		},
 		"definitions_top": {
-			"exclude": [
-				"#mbtools#.*_ajson.*"
-			],
+			"exclude": [],
 			"severity": "Error"
 		},
 		"description_empty": {
@@ -487,7 +485,9 @@
 		},
 		"no_public_attributes": {
 			"allowReadOnly": true,
-			"exclude": [],
+			"exclude": [
+				"#mbtools#cl_logger.clas.testclasses.abap"
+			],
 			"severity": "Error"
 		},
 		"no_yoda_conditions": {
