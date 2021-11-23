@@ -9,11 +9,11 @@ CLASS /mbtools/cl_logger_settings DEFINITION
     METHODS constructor.
   PROTECTED SECTION.
   PRIVATE SECTION.
-    DATA auto_save TYPE abap_bool.
-    DATA expiry_date TYPE aldate_del .
+    DATA auto_save                 TYPE abap_bool.
+    DATA expiry_date               TYPE aldate_del .
     DATA must_be_kept_until_expiry TYPE del_before.
-    DATA max_exception_drill_down TYPE i.
-    DATA use_2nd_db_connection TYPE flag.
+    DATA max_exception_drill_down  TYPE i.
+    DATA use_2nd_db_connection     TYPE flag.
 ENDCLASS.
 
 
@@ -22,9 +22,9 @@ CLASS /mbtools/cl_logger_settings IMPLEMENTATION.
 
   METHOD constructor.
     must_be_kept_until_expiry = abap_false.
-    max_exception_drill_down = 10.
-    use_2nd_db_connection = abap_true.
-    auto_save = abap_true.
+    max_exception_drill_down  = 10.
+    use_2nd_db_connection     = abap_true.
+    auto_save                 = abap_true.
   ENDMETHOD.
 
   METHOD /mbtools/if_logger_settings~get_autosave.
@@ -33,7 +33,7 @@ CLASS /mbtools/cl_logger_settings IMPLEMENTATION.
 
   METHOD /mbtools/if_logger_settings~set_autosave.
     auto_save = i_auto_save.
-    r_self = me.
+    r_self    = me.
   ENDMETHOD.
 
   METHOD /mbtools/if_logger_settings~get_expiry_date.
@@ -42,7 +42,7 @@ CLASS /mbtools/cl_logger_settings IMPLEMENTATION.
 
   METHOD /mbtools/if_logger_settings~set_expiry_date.
     expiry_date = i_expiry_date.
-    r_self = me.
+    r_self      = me.
   ENDMETHOD.
 
   METHOD /mbtools/if_logger_settings~set_expiry_in_days.
@@ -58,7 +58,7 @@ CLASS /mbtools/cl_logger_settings IMPLEMENTATION.
 
   METHOD /mbtools/if_logger_settings~set_must_be_kept_until_expiry.
     must_be_kept_until_expiry = i_must_be_kept_until_expiry.
-    r_self = me.
+    r_self                    = me.
   ENDMETHOD.
 
   METHOD /mbtools/if_logger_settings~get_max_exception_drill_down.
@@ -78,7 +78,7 @@ CLASS /mbtools/cl_logger_settings IMPLEMENTATION.
 
   METHOD /mbtools/if_logger_settings~set_usage_of_secondary_db_conn.
     use_2nd_db_connection = i_use_2nd_db_connection.
-    r_self = me.
+    r_self                = me.
   ENDMETHOD.
 
 ENDCLASS.

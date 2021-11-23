@@ -1,12 +1,30 @@
+CLASS ltd_loggable_object DEFINITION CREATE PUBLIC FOR TESTING.
+
+  PUBLIC SECTION.
+    DATA messages TYPE /mbtools/if_loggable_object=>tty_messages .
+    INTERFACES /mbtools/if_loggable_object.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+
+ENDCLASS.
+
+CLASS ltd_loggable_object IMPLEMENTATION.
+
+  METHOD /mbtools/if_loggable_object~get_message_table.
+    r_result = messages.
+  ENDMETHOD.
+
+ENDCLASS.
+
 CLASS lcl_test DEFINITION FOR TESTING
   DURATION SHORT
   RISK LEVEL HARMLESS.
   PRIVATE SECTION.
 
     DATA:
-      anon_log     TYPE REF TO /mbtools/if_logger,
-      named_log    TYPE REF TO /mbtools/if_logger,
-      reopened_log TYPE REF TO /mbtools/if_logger.
+          anon_log     TYPE REF TO /mbtools/if_logger,
+          named_log    TYPE REF TO /mbtools/if_logger,
+          reopened_log TYPE REF TO /mbtools/if_logger.
 
     CLASS-METHODS:
       class_setup.
@@ -52,12 +70,14 @@ can_log_string FOR TESTING,
       can_log_bapi_order_return FOR TESTING,
       can_log_rcomp     FOR TESTING,
       can_log_prott FOR TESTING,
+      can_log_sprot FOR TESTING,
       can_log_bapirettab FOR TESTING,
       can_log_err FOR TESTING,
       can_log_chained_exceptions FOR TESTING,
       can_log_batch_msgs FOR TESTING,
       can_log_any_simple_structure FOR TESTING,
       can_log_any_deep_structure FOR TESTING,
+      can_log_loggable_object FOR TESTING,
 can_add_msg_context FOR TESTING,
       can_add_callback_sub FOR TESTING,
       can_add_callback_fm  FOR TESTING,
@@ -101,8 +121,8 @@ CLASS lcl_test IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD can_create_expiring_log_days.
-    DATA expiring_log TYPE REF TO /mbtools/if_logger.
-    DATA act_header TYPE bal_s_log.
+    DATA expiring_log                  TYPE REF TO /mbtools/if_logger.
+    DATA act_header                    TYPE bal_s_log.
     CONSTANTS days_until_log_can_be_deleted TYPE i VALUE 365.
     DATA lv_exp TYPE d.
 
@@ -142,8 +162,8 @@ CLASS lcl_test IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD can_create_expiring_log_date.
-    DATA expiring_log TYPE REF TO /mbtools/if_logger.
-    DATA act_header TYPE bal_s_log.
+    DATA expiring_log                  TYPE REF TO /mbtools/if_logger.
+    DATA act_header                    TYPE bal_s_log.
     CONSTANTS days_until_log_can_be_deleted TYPE i VALUE 365.
 
     DATA lv_expire TYPE d.
@@ -190,7 +210,7 @@ CLASS lcl_test IMPLEMENTATION.
   METHOD can_open_or_create.
     DATA: created_log TYPE REF TO /mbtools/if_logger,
           handles     TYPE bal_t_logh.
-    CALL FUNCTION 'BAL_GLB_MEMORY_REFRESH'. "Close Logs
+    CALL FUNCTION 'BAL_GLB_MEMORY_REFRESH'.                "Close Logs
     reopened_log = /mbtools/cl_logger=>open( object = 'ABAPUNIT'
                                      subobject = 'LOGGER'
                                      desc = 'Log saved in database'
@@ -553,7 +573,7 @@ CLASS lcl_test IMPLEMENTATION.
 
     "Solution manager doens't have BAPI_ORDER_RETURN. Therefore avoid using the concrete type
     DATA bapi_order_return_data_ref TYPE REF TO data.
-    DATA bapi_return_temp TYPE bapiret2. "these fields have the same name as BAPI_ORDER_RETURN
+    DATA bapi_return_temp           TYPE bapiret2.         "these fields have the same name as BAPI_ORDER_RETURN
     FIELD-SYMBOLS <bapi_order_return_structure> TYPE any.
     TRY.
         CREATE DATA bapi_order_return_data_ref TYPE ('BAPI_ORDER_RETURN').
@@ -608,10 +628,10 @@ CLASS lcl_test IMPLEMENTATION.
 
   METHOD can_log_rcomp.
     DATA:
-      msg_handle       TYPE balmsghndl,
-      expected_details TYPE bal_s_msg,
-      actual_details   TYPE bal_s_msg,
-      actual_text      TYPE char200.
+          msg_handle       TYPE balmsghndl,
+          expected_details TYPE bal_s_msg,
+          actual_details   TYPE bal_s_msg,
+          actual_text      TYPE char200.
 
     "Solution manager doens't have PROTT. Therefore avoid using the concrete type
     DATA rcomp_data_ref TYPE REF TO data.
@@ -732,6 +752,58 @@ CLASS lcl_test IMPLEMENTATION.
     ).
   ENDMETHOD.
 
+  METHOD can_log_sprot.
+
+    DATA: sprot_msg        TYPE pat_sprot,
+          msg_handle       TYPE balmsghndl,
+          expected_details TYPE bal_s_msg,
+          actual_details   TYPE bal_s_msg,
+          actual_text      TYPE char200.
+
+    expected_details-msgty = sprot_msg-severity = 'W'.
+    expected_details-msgid = sprot_msg-ag = 'BL'.
+    expected_details-msgno = sprot_msg-msgnr = '001'.
+    expected_details-msgv1 = sprot_msg-var1 = 'This'.
+    expected_details-msgv2 = sprot_msg-var2 = 'is'.
+    expected_details-msgv3 = sprot_msg-var3 = 'a'.
+    expected_details-msgv4 = sprot_msg-var4 = 'test'.
+
+    anon_log->add( sprot_msg ).
+
+    msg_handle-log_handle = anon_log->handle.
+    msg_handle-msgnumber  = '000001'.
+
+    CALL FUNCTION 'BAL_LOG_MSG_READ'
+      EXPORTING
+        i_s_msg_handle = msg_handle
+      IMPORTING
+        e_s_msg        = actual_details
+        e_txt_msg      = actual_text.
+
+    cl_aunit_assert=>assert_not_initial(
+      act = actual_details-time_stmp
+      msg = 'Did not log system message properly' ).
+
+    expected_details-msg_count = 1.
+    CLEAR actual_details-time_stmp.
+
+    cl_aunit_assert=>assert_equals(
+      exp = expected_details
+      act = actual_details
+      msg = 'Did not log system message properly' ).
+
+    cl_aunit_assert=>assert_equals(
+      exp = 'This is a test'
+      act = condense( actual_text )
+      msg = 'Did not log system message properly' ).
+
+    cl_aunit_assert=>assert_equals(
+      exp = abap_true
+      act = anon_log->has_warnings( )
+      msg = 'Did not log or fetch system message properly'
+    ).
+  ENDMETHOD.
+
   METHOD can_log_bapirettab.
     DATA: bapi_messages TYPE bapirettab,
           bapi_msg      TYPE bapiret2,
@@ -807,8 +879,8 @@ CLASS lcl_test IMPLEMENTATION.
         impossible_int = 1 / 0.                            "Make an error!
       CATCH cx_sy_zerodivide INTO err.
         anon_log->add( err ).
-        exp_txt         = err->if_message~get_text( ).
-        long_text       = err->if_message~get_longtext( ).
+        exp_txt   = err->if_message~get_text( ).
+        long_text = err->if_message~get_longtext( ).
     ENDTRY.
 
     msg_handle-log_handle = anon_log->handle.
@@ -839,8 +911,8 @@ CLASS lcl_test IMPLEMENTATION.
           bal_msg            TYPE bal_s_msg.
 
     DEFINE exceptions_are.
-      create object main_exception
-        exporting
+      CREATE OBJECT main_exception
+        EXPORTING
           previous = previous_exception
           id       = &1
           no       = &2
@@ -877,19 +949,19 @@ CLASS lcl_test IMPLEMENTATION.
 
     READ TABLE bal_msgs INDEX 1 INTO bal_msg.
     cl_abap_unit_assert=>assert_equals(
-      exp = 'SABP_UNIT010'    " 'Message 1'
+      exp = 'SABP_UNIT010'                                 " 'Message 1'
       act = bal_msg-msgid && bal_msg-msgno
       msg = c_chained_exception ).
 
     READ TABLE bal_msgs INDEX 2 INTO bal_msg.
     cl_abap_unit_assert=>assert_equals(
-      exp = 'SABP_UNIT030'    " 'Message 2'
+      exp = 'SABP_UNIT030'                                 " 'Message 2'
       act = bal_msg-msgid && bal_msg-msgno
       msg = c_chained_exception ).
 
     READ TABLE bal_msgs INDEX 3 INTO bal_msg.
     cl_abap_unit_assert=>assert_equals(
-      exp = 'SABP_UNIT000Thisistestmessage'       " 'Message: This is test message'
+      exp = 'SABP_UNIT000Thisistestmessage'                " 'Message: This is test message'
       act = bal_msg-msgid && bal_msg-msgno && bal_msg-msgv1 && bal_msg-msgv2 && bal_msg-msgv3 && bal_msg-msgv4
       msg = c_chained_exception ).
 
@@ -935,19 +1007,19 @@ CLASS lcl_test IMPLEMENTATION.
 
     READ TABLE bal_msgs INDEX 1 INTO bal_msg.
     cl_abap_unit_assert=>assert_equals(
-      exp = 'SABP_UNIT010'    " 'Message 1'
+      exp = 'SABP_UNIT010'                                 " 'Message 1'
       act = bal_msg-msgid && bal_msg-msgno
       msg = c_bdc_message ).
 
     READ TABLE bal_msgs INDEX 2 INTO bal_msg.
     cl_abap_unit_assert=>assert_equals(
-      exp = 'SABP_UNIT030'    " 'Message 2'
+      exp = 'SABP_UNIT030'                                 " 'Message 2'
       act = bal_msg-msgid && bal_msg-msgno
       msg = c_bdc_message ).
 
     READ TABLE bal_msgs INDEX 3 INTO bal_msg.
     cl_abap_unit_assert=>assert_equals(
-      exp = 'SABP_UNIT000Thisistestmessage'       " 'Message: This is test message'
+      exp = 'SABP_UNIT000Thisistestmessage'                " 'Message: This is test message'
       act = bal_msg-msgid && bal_msg-msgno && bal_msg-msgv1 && bal_msg-msgv2 && bal_msg-msgv3 && bal_msg-msgv4
       msg = c_bdc_message ).
 
@@ -994,18 +1066,18 @@ CLASS lcl_test IMPLEMENTATION.
     TYPES: BEGIN OF ty_struct,
              comp1 TYPE string,
              comp2 TYPE i,
-           END OF ty_struct,
-           BEGIN OF ty_deep_struct,
+           END   OF ty_struct,
+             BEGIN OF ty_deep_struct,
              comp1 TYPE string,
              deep  TYPE ty_struct,
-           END OF ty_deep_struct.
+             END OF ty_deep_struct.
     DATA: struct      TYPE ty_deep_struct,
           act_table   TYPE table_of_strings,
           exp_table   TYPE table_of_strings,
           exp_line    LIKE LINE OF exp_table,
           msg_details TYPE bal_tt_msg.
 
-    struct-comp1 = 'Demo'.
+    struct-comp1      = 'Demo'.
     struct-deep-comp1 = 'Inner component'.
     struct-deep-comp2 = 10.
     anon_log->e( struct ).
@@ -1065,11 +1137,34 @@ CLASS lcl_test IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD can_log_loggable_object.
+    "given
+    DATA loggable_message TYPE /mbtools/if_loggable_object=>ty_message.
+    DATA loggable         TYPE REF TO ltd_loggable_object.
+    DATA dummy            TYPE string.
+    CREATE OBJECT loggable TYPE ltd_loggable_object.
+
+    MESSAGE s001(00) WITH 'I' 'test' 'the' 'logger.' INTO dummy.
+    MOVE-CORRESPONDING sy TO loggable_message-symsg.
+    loggable_message-type = sy-msgty.
+    APPEND loggable_message TO loggable->messages.
+
+    "when
+    named_log->add( loggable ).
+
+    "then
+    cl_aunit_assert=>assert_equals(
+      exp = 'Itestthelogger.'
+      act = get_first_message( named_log->handle )
+      msg = 'Did not add loggable message correctly' ).
+  ENDMETHOD.
+
+
   METHOD can_add_table_msg_context.
     DATA: addl_context TYPE bezei20 VALUE 'Berlin',        "data element from dictionary!
           msg_handle   TYPE balmsghndl,
           act_details  TYPE bal_s_msg.
-    DATA msg_table TYPE table_of_strings.
+    DATA msg_table    TYPE table_of_strings.
 
     APPEND `Here is some text` TO msg_table.
     APPEND `Here is some other text` TO msg_table.

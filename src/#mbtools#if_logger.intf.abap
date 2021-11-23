@@ -1,8 +1,8 @@
 INTERFACE /mbtools/if_logger
   PUBLIC .
-  DATA handle TYPE balloghndl READ-ONLY .
+  DATA handle    TYPE balloghndl READ-ONLY .
   DATA db_number TYPE balognr READ-ONLY .
-  DATA header TYPE bal_s_log READ-ONLY .
+  DATA header    TYPE bal_s_log READ-ONLY .
 
   METHODS add
     IMPORTING

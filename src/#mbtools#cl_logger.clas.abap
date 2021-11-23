@@ -61,24 +61,20 @@ CLASS /mbtools/cl_logger DEFINITION
 *"* protected components of class ZCL_LOGGER
 *"* do not include other source files here!!!
   PRIVATE SECTION.
-* Local type for hrpad_message as it is not available in an ABAP Development System
-    TYPES: BEGIN OF hrpad_message_field_list_alike,
-             scrrprfd TYPE scrrprfd.
-    TYPES: END OF hrpad_message_field_list_alike.
 
-    TYPES: BEGIN OF hrpad_message_alike,
-             cause(32)    TYPE c,                          "original: hrpad_message_cause
-             detail_level TYPE ballevel.
-             INCLUDE TYPE symsg .
-    TYPES: field_list   TYPE STANDARD TABLE OF hrpad_message_field_list_alike
-               WITH NON-UNIQUE KEY scrrprfd.
-    TYPES: END OF hrpad_message_alike.
+    CONSTANTS:
+      BEGIN OF c_struct_kind,
+                 syst  TYPE i VALUE 1,
+                 bapi  TYPE i VALUE 2,
+                 bdc   TYPE i VALUE 3,
+                 sprot TYPE i VALUE 4,
+      END OF c_struct_kind .
 
 *"* private components of class ZCL_LOGGER
 *"* do not include other source files here!!!
-    DATA sec_connection           TYPE abap_bool .
-    DATA sec_connect_commit       TYPE abap_bool .
-    DATA settings                 TYPE REF TO /mbtools/if_logger_settings.
+    DATA sec_connection     TYPE abap_bool .
+    DATA sec_connect_commit TYPE abap_bool .
+    DATA settings           TYPE REF TO /mbtools/if_logger_settings.
 
     METHODS:
       "! Safety limit for previous exception drill down
@@ -108,11 +104,82 @@ add_structure
           VALUE(self)   TYPE REF TO /mbtools/if_logger .
 
     METHODS save_log.
+    METHODS get_struct_kind
+      IMPORTING
+        !msg_type     TYPE REF TO cl_abap_typedescr
+      RETURNING
+        VALUE(result) TYPE string .
+    METHODS add_syst_msg
+      IMPORTING
+        !obj_to_log         TYPE any
+      RETURNING
+        VALUE(detailed_msg) TYPE bal_s_msg .
+    METHODS add_bapi_msg
+      IMPORTING
+        !obj_to_log         TYPE any
+      RETURNING
+        VALUE(detailed_msg) TYPE bal_s_msg .
+    METHODS add_bdc_msg
+      IMPORTING
+        !obj_to_log         TYPE any
+      RETURNING
+        VALUE(detailed_msg) TYPE bal_s_msg .
+    METHODS add_sprot_msg
+      IMPORTING
+        !obj_to_log         TYPE any
+      RETURNING
+        VALUE(detailed_msg) TYPE bal_s_msg .
 ENDCLASS.
 
 
 
 CLASS /mbtools/cl_logger IMPLEMENTATION.
+
+
+  METHOD add_bapi_msg.
+    DATA bapi_message TYPE bapiret1.
+    MOVE-CORRESPONDING obj_to_log TO bapi_message.
+    detailed_msg-msgty = bapi_message-type.
+    detailed_msg-msgid = bapi_message-id.
+    detailed_msg-msgno = bapi_message-number.
+    detailed_msg-msgv1 = bapi_message-message_v1.
+    detailed_msg-msgv2 = bapi_message-message_v2.
+    detailed_msg-msgv3 = bapi_message-message_v3.
+    detailed_msg-msgv4 = bapi_message-message_v4.
+  ENDMETHOD.
+
+
+  METHOD add_bdc_msg.
+    DATA bdc_message TYPE bdcmsgcoll.
+    MOVE-CORRESPONDING obj_to_log TO bdc_message.
+    detailed_msg-msgty = bdc_message-msgtyp.               "!
+    detailed_msg-msgid = bdc_message-msgid.
+    detailed_msg-msgno = bdc_message-msgnr.                "!
+    detailed_msg-msgv1 = bdc_message-msgv1.
+    detailed_msg-msgv2 = bdc_message-msgv2.
+    detailed_msg-msgv3 = bdc_message-msgv3.
+    detailed_msg-msgv4 = bdc_message-msgv4.
+  ENDMETHOD.
+
+
+  METHOD add_sprot_msg.
+    DATA sprot_message TYPE sprot_u.
+    MOVE-CORRESPONDING obj_to_log TO sprot_message.
+    detailed_msg-msgty = sprot_message-severity.
+    detailed_msg-msgid = sprot_message-ag.
+    detailed_msg-msgno = sprot_message-msgnr.              "!
+    detailed_msg-msgv1 = sprot_message-var1.
+    detailed_msg-msgv2 = sprot_message-var2.
+    detailed_msg-msgv3 = sprot_message-var3.
+    detailed_msg-msgv4 = sprot_message-var4.
+  ENDMETHOD.
+
+
+  METHOD add_syst_msg.
+    DATA syst_message TYPE symsg.
+    MOVE-CORRESPONDING obj_to_log TO syst_message.
+    MOVE-CORRESPONDING syst_message TO detailed_msg.
+  ENDMETHOD.
 
 
   METHOD drill_down_into_exception.
@@ -123,7 +190,7 @@ CLASS /mbtools/cl_logger IMPLEMENTATION.
     FIELD-SYMBOLS <ex> LIKE LINE OF exceptions.
     FIELD-SYMBOLS <ret> LIKE LINE OF rt_exception_data_table.
     APPEND INITIAL LINE TO exceptions ASSIGNING <ex>.
-    <ex>-level = 1.
+    <ex>-level     = 1.
     <ex>-exception = exception.
 
     previous_exception = exception.
@@ -136,9 +203,9 @@ CLASS /mbtools/cl_logger IMPLEMENTATION.
       previous_exception ?= previous_exception->previous.
 
       APPEND INITIAL LINE TO exceptions ASSIGNING <ex>.
-      <ex>-level = i.
+      <ex>-level     = i.
       <ex>-exception = previous_exception.
-      i = i + 1.
+      i              = i + 1.
     ENDWHILE.
 
 
@@ -176,6 +243,53 @@ CLASS /mbtools/cl_logger IMPLEMENTATION.
         e_t_msg_handle = rt_message_handles
       EXCEPTIONS
         msg_not_found  = 0.
+
+  ENDMETHOD.
+
+
+  METHOD get_struct_kind.
+
+    DATA: msg_struct_kind TYPE REF TO cl_abap_structdescr,
+          components      TYPE abap_compdescr_tab,
+          component       LIKE LINE OF components,
+          syst_count      TYPE i,
+          bapi_count      TYPE i,
+          bdc_count       TYPE i,
+          sprot_count     TYPE i.
+
+    IF msg_type->type_kind = cl_abap_typedescr=>typekind_struct1
+      OR msg_type->type_kind = cl_abap_typedescr=>typekind_struct2.
+
+      msg_struct_kind ?= msg_type.
+      components = msg_struct_kind->components.
+
+      " Count number of fields expected for each supported type of message structure
+      LOOP AT components INTO component.
+        IF 'MSGTY,MSGID,MSGNO,MSGV1,MSGV2,MSGV3,MSGV4,' CS |{ component-name },|.
+          syst_count = syst_count + 1.
+        ENDIF.
+        IF 'TYPE,NUMBER,ID,MESSAGE_V1,MESSAGE_V2,MESSAGE_V3,MESSAGE_V4,' CS |{ component-name },|.
+          bapi_count = bapi_count + 1.
+        ENDIF.
+        IF 'MSGTYP,MSGID,MSGNR,MSGV1,MSGV2,MSGV3,MSGV4,' CS |{ component-name },|.
+          bdc_count = bdc_count + 1.
+        ENDIF.
+        IF 'SEVERITY,AG,MSGNR,VAR1,VAR2,VAR3,VAR4,' CS |{ component-name },|.
+          sprot_count = sprot_count + 1.
+        ENDIF.
+      ENDLOOP.
+
+      " Set message type if all expected fields are present
+      IF syst_count = 7.
+        result = c_struct_kind-syst.
+      ELSEIF bapi_count = 7.
+        result = c_struct_kind-bapi.
+      ELSEIF bdc_count = 7.
+        result = c_struct_kind-bdc.
+      ELSEIF sprot_count = 7.
+        result = c_struct_kind-sprot.
+      ENDIF.
+    ENDIF.
 
   ENDMETHOD.
 
@@ -250,27 +364,23 @@ CLASS /mbtools/cl_logger IMPLEMENTATION.
           ctx_ddic_header      TYPE x030l,
           msg_type             TYPE REF TO cl_abap_typedescr,
           msg_table_type       TYPE REF TO cl_abap_tabledescr,
+          struct_kind          TYPE i,
           log_numbers          TYPE bal_t_lgnm,
           log_handles          TYPE bal_t_logh,
           log_number           TYPE bal_s_lgnm,
           formatted_context    TYPE bal_s_cont,
           formatted_params     TYPE bal_s_parm,
-          message_type         TYPE symsgty.
+          message_type         TYPE symsgty,
+          "these objects could be moved into their own method
+          "see adt://***/sap/bc/adt/oo/classes/zcl_logger/source/main#start=391,10;end=415,61
+          symsg                    TYPE symsg,
+          loggable                 TYPE REF TO /mbtools/if_loggable_object,
+          loggable_object_messages TYPE /mbtools/if_loggable_object=>tty_messages.
 
-    FIELD-SYMBOLS: <table_of_messages> TYPE ANY TABLE,
-                   <message_line>      TYPE any,
-                   <symsg>             TYPE symsg,
-                   <bapiret1_msg>      TYPE bapiret1,
-                   <bapi_msg>          TYPE bapiret2,
-                   <bapi_coru_msg>     TYPE bapi_coru_return,
-                   <bdc_msg>           TYPE bdcmsgcoll,
-                   <hrpad_msg>         TYPE hrpad_message_alike,
-                   <context_val>       TYPE any.
-      "Solution manager doens't have BAPI_ORDER_RETURN, RCOMP, PROTT. Therefore avoid using these concrete types
-*                   <bapi_order_msg>    type bapi_order_return,
-*                   <rcomp_msg>         type rcomp,
-*                   <prott_msg>         type prott,
-    DATA replacement_bapi_order_return TYPE bapiret2.
+    FIELD-SYMBOLS: <table_of_messages>       TYPE ANY TABLE,
+                   <message_line>            TYPE any,
+                   <context_val>             TYPE any,
+                   <loggable_object_message> TYPE /mbtools/if_loggable_object=>ty_message.
     FIELD-SYMBOLS <exception_data> LIKE LINE OF exception_data_table.
 
     IF context IS NOT INITIAL.
@@ -294,97 +404,60 @@ CLASS /mbtools/cl_logger IMPLEMENTATION.
       formatted_params-callback-userexitt = ' '.
     ENDIF.
 
-    msg_type = cl_abap_typedescr=>describe_by_data( obj_to_log ).
+    msg_type    = cl_abap_typedescr=>describe_by_data( obj_to_log ).
+    struct_kind = get_struct_kind( msg_type ).
 
     IF obj_to_log IS NOT SUPPLIED.
-      detailed_msg-msgty = sy-msgty.
-      detailed_msg-msgid = sy-msgid.
-      detailed_msg-msgno = sy-msgno.
-      detailed_msg-msgv1 = sy-msgv1.
-      detailed_msg-msgv2 = sy-msgv2.
-      detailed_msg-msgv3 = sy-msgv3.
-      detailed_msg-msgv4 = sy-msgv4.
-    ELSEIF msg_type->absolute_name = '\TYPE=SYMSG'.
-      ASSIGN obj_to_log TO <symsg>.
-      detailed_msg-msgty = <symsg>-msgty.
-      detailed_msg-msgid = <symsg>-msgid.
-      detailed_msg-msgno = <symsg>-msgno.
-      detailed_msg-msgv1 = <symsg>-msgv1.
-      detailed_msg-msgv2 = <symsg>-msgv2.
-      detailed_msg-msgv3 = <symsg>-msgv3.
-      detailed_msg-msgv4 = <symsg>-msgv4.
-    ELSEIF msg_type->absolute_name = '\TYPE=BAPIRET1'.
-      ASSIGN obj_to_log TO <bapiret1_msg>.
-      detailed_msg-msgty = <bapiret1_msg>-type.
-      detailed_msg-msgid = <bapiret1_msg>-id.
-      detailed_msg-msgno = <bapiret1_msg>-number.
-      detailed_msg-msgv1 = <bapiret1_msg>-message_v1.
-      detailed_msg-msgv2 = <bapiret1_msg>-message_v2.
-      detailed_msg-msgv3 = <bapiret1_msg>-message_v3.
-      detailed_msg-msgv4 = <bapiret1_msg>-message_v4.
-    ELSEIF msg_type->absolute_name = '\TYPE=BAPIRET2'.
-      ASSIGN obj_to_log TO <bapi_msg>.
-      detailed_msg-msgty = <bapi_msg>-type.
-      detailed_msg-msgid = <bapi_msg>-id.
-      detailed_msg-msgno = <bapi_msg>-number.
-      detailed_msg-msgv1 = <bapi_msg>-message_v1.
-      detailed_msg-msgv2 = <bapi_msg>-message_v2.
-      detailed_msg-msgv3 = <bapi_msg>-message_v3.
-      detailed_msg-msgv4 = <bapi_msg>-message_v4.
-    ELSEIF msg_type->absolute_name = '\TYPE=BAPI_CORU_RETURN'.
-      ASSIGN obj_to_log TO <bapi_coru_msg>.
-      detailed_msg-msgty = <bapi_coru_msg>-type.
-      detailed_msg-msgid = <bapi_coru_msg>-id.
-      detailed_msg-msgno = <bapi_coru_msg>-number.
-      detailed_msg-msgv1 = <bapi_coru_msg>-message_v1.
-      detailed_msg-msgv2 = <bapi_coru_msg>-message_v2.
-      detailed_msg-msgv3 = <bapi_coru_msg>-message_v3.
-      detailed_msg-msgv4 = <bapi_coru_msg>-message_v4.
-    ELSEIF msg_type->absolute_name = '\TYPE=BDCMSGCOLL'.
-      ASSIGN obj_to_log TO <bdc_msg>.
-      detailed_msg-msgty = <bdc_msg>-msgtyp.
-      detailed_msg-msgid = <bdc_msg>-msgid.
-      detailed_msg-msgno = <bdc_msg>-msgnr.
-      detailed_msg-msgv1 = <bdc_msg>-msgv1.
-      detailed_msg-msgv2 = <bdc_msg>-msgv2.
-      detailed_msg-msgv3 = <bdc_msg>-msgv3.
-      detailed_msg-msgv4 = <bdc_msg>-msgv4.
-    ELSEIF msg_type->absolute_name = '\TYPE=HRPAD_MESSAGE'.
-      ASSIGN obj_to_log TO <hrpad_msg>.
-      detailed_msg-msgty = <hrpad_msg>-msgty.
-      detailed_msg-msgid = <hrpad_msg>-msgid.
-      detailed_msg-msgno = <hrpad_msg>-msgno.
-      detailed_msg-msgv1 = <hrpad_msg>-msgv1.
-      detailed_msg-msgv2 = <hrpad_msg>-msgv2.
-      detailed_msg-msgv3 = <hrpad_msg>-msgv3.
-      detailed_msg-msgv4 = <hrpad_msg>-msgv4.
-    ELSEIF msg_type->absolute_name = '\TYPE=BAPI_ORDER_RETURN'.
-      "Solution manager doens't have BAPI_ORDER_RETURN. Therefore avoid using the concrete type
-      MOVE-CORRESPONDING obj_to_log TO replacement_bapi_order_return.
-      detailed_msg-msgty = replacement_bapi_order_return-type.
-      detailed_msg-msgid = replacement_bapi_order_return-id.
-      detailed_msg-msgno = replacement_bapi_order_return-number.
-      detailed_msg-msgv1 = replacement_bapi_order_return-message_v1.
-      detailed_msg-msgv2 = replacement_bapi_order_return-message_v2.
-      detailed_msg-msgv3 = replacement_bapi_order_return-message_v3.
-      detailed_msg-msgv4 = replacement_bapi_order_return-message_v4.
-    ELSEIF msg_type->absolute_name = '\TYPE=RCOMP'.
-      "Solution manager doens't have RCOMP. Therefore avoid using the concrete type
-      MOVE-CORRESPONDING obj_to_log TO detailed_msg.
-    ELSEIF msg_type->absolute_name = '\TYPE=PROTT'.
-      "Solution manager doens't have PROTT. Therefore avoid using the concrete type
-      MOVE-CORRESPONDING obj_to_log TO detailed_msg.
+      detailed_msg = add_syst_msg( syst ).
+    ELSEIF struct_kind = c_struct_kind-syst.
+      detailed_msg = add_syst_msg( obj_to_log ).
+    ELSEIF struct_kind = c_struct_kind-bapi.
+      detailed_msg = add_bapi_msg( obj_to_log ).
+    ELSEIF struct_kind = c_struct_kind-bdc.
+      detailed_msg = add_bdc_msg( obj_to_log ).
+    ELSEIF struct_kind = c_struct_kind-sprot.
+      detailed_msg = add_sprot_msg( obj_to_log ).
     ELSEIF msg_type->type_kind = cl_abap_typedescr=>typekind_oref.
-      IF type IS INITIAL.
-        message_type = if_msg_output=>msgtype_error.
-      ELSE.
-        message_type = type.
-      ENDIF.
-      exception_data_table = me->drill_down_into_exception(
-          exception   = obj_to_log
-          type        = message_type
-          importance  = importance
-          ).
+      TRY.
+          "BEGIN this could/should be moved into its own method
+          loggable ?= obj_to_log.
+          loggable_object_messages = loggable->get_message_table( ).
+          LOOP AT loggable_object_messages ASSIGNING <loggable_object_message>.
+            IF <loggable_object_message>-symsg IS NOT INITIAL.
+              MOVE-CORRESPONDING <loggable_object_message>-symsg TO symsg.
+              symsg-msgty = <loggable_object_message>-type.
+              /mbtools/if_logger~add(
+                  obj_to_log    = symsg
+                  context       = context ).
+            ENDIF.
+            IF <loggable_object_message>-exception IS BOUND.
+              /mbtools/if_logger~add(
+                  type          = <loggable_object_message>-type
+                  obj_to_log    = <loggable_object_message>-exception
+                  context       = context ).
+            ENDIF.
+            IF <loggable_object_message>-string IS NOT INITIAL.
+              /mbtools/if_logger~add(
+                  type          = <loggable_object_message>-type
+                  obj_to_log    = <loggable_object_message>-string
+                  context       = context ).
+            ENDIF.
+          ENDLOOP.
+          "END this could/should be moved into its own method
+
+        CATCH cx_sy_move_cast_error.
+          IF type IS INITIAL.
+            message_type = if_msg_output=>msgtype_error.
+          ELSE.
+            message_type = type.
+          ENDIF.
+          exception_data_table = me->drill_down_into_exception(
+              exception   = obj_to_log
+              type        = message_type
+              importance  = importance
+              ).
+
+      ENDTRY.
     ELSEIF msg_type->type_kind = cl_abap_typedescr=>typekind_table.
       ASSIGN obj_to_log TO <table_of_messages>.
       LOOP AT <table_of_messages> ASSIGNING <message_line>.
@@ -396,8 +469,8 @@ CLASS /mbtools/cl_logger IMPLEMENTATION.
           /mbtools/if_logger~add( <message_line> ).
         ENDIF.
       ENDLOOP.
-    ELSEIF msg_type->type_kind = cl_abap_typedescr=>typekind_struct1   "flat structure
-        OR msg_type->type_kind = cl_abap_typedescr=>typekind_struct2.  "deep structure (already when string is used)
+    ELSEIF msg_type->type_kind = cl_abap_typedescr=>typekind_struct1     "flat structure
+        OR msg_type->type_kind = cl_abap_typedescr=>typekind_struct2.    "deep structure (already when string is used)
       add_structure(
         EXPORTING
           obj_to_log    = obj_to_log
@@ -451,13 +524,13 @@ CLASS /mbtools/cl_logger IMPLEMENTATION.
   METHOD add_structure.
     DATA: msg_type        TYPE REF TO cl_abap_typedescr,
           msg_struct_type TYPE REF TO cl_abap_structdescr,
-          components      TYPE cl_abap_structdescr=>component_table,
+          components      TYPE abap_compdescr_tab,
           component       LIKE LINE OF components,
           string_to_log   TYPE string.
     FIELD-SYMBOLS: <component>   TYPE any.
 
     msg_struct_type ?= cl_abap_typedescr=>describe_by_data( obj_to_log ).
-    components = msg_struct_type->get_components( ).
+    components = msg_struct_type->components.
     add( '--- Begin of structure ---' ).
     LOOP AT components INTO component.
       ASSIGN COMPONENT component-name OF STRUCTURE obj_to_log TO <component>.
@@ -542,8 +615,8 @@ CLASS /mbtools/cl_logger IMPLEMENTATION.
   METHOD /mbtools/if_logger~fullscreen.
 
     DATA:
-      profile        TYPE bal_s_prof,
-      lt_log_handles TYPE bal_t_logh.
+          profile        TYPE bal_s_prof,
+          lt_log_handles TYPE bal_t_logh.
 
     APPEND me->handle TO lt_log_handles.
 
@@ -602,7 +675,7 @@ CLASS /mbtools/cl_logger IMPLEMENTATION.
   METHOD /mbtools/if_logger~popup.
 * See SBAL_DEMO_04_POPUP for ideas
     DATA relevant_profile TYPE bal_s_prof.
-    DATA lt_log_handles TYPE bal_t_logh.
+    DATA lt_log_handles   TYPE bal_t_logh.
 
     APPEND me->handle TO lt_log_handles.
 
@@ -654,7 +727,7 @@ CLASS /mbtools/cl_logger IMPLEMENTATION.
   METHOD save_log.
     DATA log_handles TYPE bal_t_logh.
     DATA log_numbers TYPE bal_t_lgnm.
-    DATA log_number TYPE bal_s_lgnm.
+    DATA log_number  TYPE bal_s_lgnm.
 
     INSERT me->handle INTO TABLE log_handles.
     CALL FUNCTION 'BAL_DB_SAVE'
