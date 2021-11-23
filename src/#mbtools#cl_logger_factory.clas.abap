@@ -121,9 +121,9 @@ CLASS /mbtools/cl_logger_factory IMPLEMENTATION.
           most_recent_header TYPE balhdr.
     DATA: lo_log             TYPE REF TO /mbtools/cl_logger.
 
-    l_object = object.
+    l_object    = object.
     l_subobject = subobject.
-    extnumber = desc.
+    extnumber   = desc.
 
     CALL FUNCTION 'BAL_FILTER_CREATE'
       EXPORTING
