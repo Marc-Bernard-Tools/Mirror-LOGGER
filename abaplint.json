@@ -606,7 +606,7 @@
 			"severity": "Error"
 		},
 		"prefix_is_current_class": {
-			"exclude": [".*"],
+			"exclude": [],
 			"omitMeInstanceCalls": true,
 			"severity": "Error"
 		},
@@ -736,7 +736,7 @@
 			"skipNames": []
 		},
 		"unused_variables": {
-			"exclude": [".*"],
+			"exclude": [],
 			"severity": "Error",
 			"skipNames": []
 		},
