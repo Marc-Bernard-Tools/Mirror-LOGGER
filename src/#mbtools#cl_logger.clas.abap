@@ -363,11 +363,7 @@ CLASS /mbtools/cl_logger IMPLEMENTATION.
           ctx_type             TYPE REF TO cl_abap_typedescr,
           ctx_ddic_header      TYPE x030l,
           msg_type             TYPE REF TO cl_abap_typedescr,
-          msg_table_type       TYPE REF TO cl_abap_tabledescr,
           struct_kind          TYPE i,
-          log_numbers          TYPE bal_t_lgnm,
-          log_handles          TYPE bal_t_logh,
-          log_number           TYPE bal_s_lgnm,
           formatted_context    TYPE bal_s_cont,
           formatted_params     TYPE bal_s_parm,
           message_type         TYPE symsgty,
@@ -451,7 +447,7 @@ CLASS /mbtools/cl_logger IMPLEMENTATION.
           ELSE.
             message_type = type.
           ENDIF.
-          exception_data_table = me->drill_down_into_exception(
+          exception_data_table = drill_down_into_exception(
               exception   = obj_to_log
               type        = message_type
               importance  = importance
@@ -514,7 +510,7 @@ CLASS /mbtools/cl_logger IMPLEMENTATION.
           i_s_msg      = detailed_msg.
     ENDIF.
 
-    IF me->settings->get_autosave( ) = abap_true.
+    IF settings->get_autosave( ) = abap_true.
       save_log( ).
     ENDIF.
     self = me.
@@ -707,7 +703,7 @@ CLASS /mbtools/cl_logger IMPLEMENTATION.
 
 
   METHOD /mbtools/if_logger~save.
-    CHECK me->settings->get_autosave( ) = abap_false.
+    CHECK settings->get_autosave( ) = abap_false.
     save_log( ).
   ENDMETHOD.
 
