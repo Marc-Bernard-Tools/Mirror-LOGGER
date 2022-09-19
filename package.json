@@ -22,6 +22,6 @@
   },
   "homepage": "https://github.com/ABAP-Logger/ABAP-Logger",
   "dependencies": {
-    "@abaplint/cli": "^2.93.12"
+    "@abaplint/cli": "^2.93.20"
   }
 }
