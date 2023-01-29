@@ -68,7 +68,7 @@
 			"check": true,
 			"clear": true,
 			"definitions": true,
-			"exclude": [],
+			"exclude": ["testclasses.abap"],
 			"free": true,
 			"hide": true,
 			"include": true,
