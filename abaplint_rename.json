@@ -24,7 +24,7 @@
       },
       {
         "type": "CLAS|INTF", 
-        "oldName": "Z(.*)_LOGG", 
+        "oldName": "Z(.*)_LOGG(?:(?!DISPLAY).)*$", 
         "newName": "/MBTOOLS/$1_LOGG"
       }
     ]
