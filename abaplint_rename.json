@@ -19,13 +19,33 @@
     "patterns": [
       {
         "type": "CLAS|INTF", 
+        "oldName": "Z(.*)_LOGGER$", 
+        "newName": "/MBTOOLS/$1_LOGGER$"
+      },
+      {
+        "type": "CLAS|INTF", 
+        "oldName": "Z(.*)_LOGGER_COLLECTION", 
+        "newName": "/MBTOOLS/$1_LOGGER_COLLECTION"
+      },
+      {
+        "type": "CLAS|INTF", 
         "oldName": "Z(.*)_LOGGER_DISPLAY_PROFILE", 
         "newName": "/MBTOOLS/$1_LOGGER_DISP_PROF"
       },
       {
         "type": "CLAS|INTF", 
-        "oldName": "Z(.*)_LOGG(?:(?!DISPLAY).)*$", 
-        "newName": "/MBTOOLS/$1_LOGG"
+        "oldName": "Z(.*)_LOGGER_FACTORY", 
+        "newName": "/MBTOOLS/$1_LOGGER_FACTORY"
+      },
+      {
+        "type": "CLAS|INTF", 
+        "oldName": "Z(.*)_LOGGER_SETTINGS", 
+        "newName": "/MBTOOLS/$1_LOGGER_SETTINGS"
+      },
+      {
+        "type": "CLAS|INTF", 
+        "oldName": "Z(.*)_LOGGABLE_OBJECT", 
+        "newName": "/MBTOOLS/$1_LOGGABLE_OBJECT"
       }
     ]
   },
