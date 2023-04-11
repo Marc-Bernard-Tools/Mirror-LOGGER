@@ -1,5 +1,5 @@
 INTERFACE /mbtools/if_loggable_object
-  PUBLIC .
+  PUBLIC.
   TYPES:
     BEGIN OF ty_symsg,
            msgid TYPE symsgid,
