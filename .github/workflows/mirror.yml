@@ -12,16 +12,18 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Use Node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
     - name: Run Mirror
       run: |
         npm install
         npm run mirror
         git status
     - name: Open Pull Request
-      uses: peter-evans/create-pull-request@v3
+      uses: peter-evans/create-pull-request@v5
       with:
         title: Automatic Update
         labels: automerge
