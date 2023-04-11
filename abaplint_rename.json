@@ -20,7 +20,7 @@
       {
         "type": "CLAS|INTF", 
         "oldName": "Z(.*)_LOGGER$", 
-        "newName": "/MBTOOLS/$1_LOGGER$"
+        "newName": "/MBTOOLS/$1_LOGGER"
       },
       {
         "type": "CLAS|INTF", 
