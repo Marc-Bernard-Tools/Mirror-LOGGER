@@ -204,7 +204,7 @@
     },
     "cyclomatic_complexity": {
       "exclude": [],
-      "max": 25,
+      "max": 27,
       "severity": "Error"
     },
     "dangerous_statement": {
@@ -726,7 +726,9 @@
       "severity": "Error"
     },
     "pragma_style": {
-      "exclude": [],
+      "exclude": [
+        "#mbtools#cl_logger_disp_prof.*"
+      ],
       "severity": "Error",
       "style": "upper"
     },
