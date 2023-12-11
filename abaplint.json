@@ -59,6 +59,8 @@
       "define": true,
       "describeLines": true,
       "exclude": ["testclasses.abap"],
+      "exportToDatabase": true,
+      "exportToMemory": true,
       "severity": "Error",
       "skipQuickFix": false,
       "statics": true,
@@ -433,7 +435,7 @@
     },
     "identical_contents": {
       "exclude": [],
-      "severity": "Error"
+      "severity": "Warning"
     },
     "identical_descriptions": {
       "exclude": [],
@@ -553,6 +555,7 @@
       "severity": "Error"
     },
     "message_exists": {
+      "checkPlaceholders": true,
       "exclude": [],
       "severity": "Error"
     },
@@ -596,6 +599,7 @@
     },
     "msag_consistency": {
       "exclude": [],
+      "numericParameters": true,
       "severity": "Error"
     },
     "names_no_dash": {
@@ -794,7 +798,8 @@
     },
     "select_add_order_by": {
       "exclude": [],
-      "severity": "Error"
+      "severity": "Error",
+      "skipForAllEntries": false
     },
     "select_performance": {
       "endSelect": true,
@@ -887,6 +892,8 @@
     },
     "uncaught_exception": {
       "exclude": [],
+      "reportDynamic": false,
+      "reportNoCheck": false,
       "severity": "Error"
     },
     "unknown_types": {
@@ -929,6 +936,7 @@
     "unused_variables": {
       "exclude": [],
       "severity": "Error",
+      "skipAbstract": false,
       "skipNames": []
     },
     "use_bool_expression": {
