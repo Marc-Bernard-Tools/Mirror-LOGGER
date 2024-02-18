@@ -39,6 +39,16 @@
       },
       {
         "type": "CLAS|INTF", 
+        "oldName": "Z(.*)_LOGGER_INJECTOR", 
+        "newName": "/MBTOOLS/$1_LOGGER_INJECTOR"
+      },
+      {
+        "type": "CLAS|INTF", 
+        "oldName": "Z(.*)_LOGGER_MANIFEST", 
+        "newName": "/MBTOOLS/$1_LOGGER_MANIFEST"
+      },
+      {
+        "type": "CLAS|INTF", 
         "oldName": "Z(.*)_LOGGER_SETTINGS", 
         "newName": "/MBTOOLS/$1_LOGGER_SETTINGS"
       },
