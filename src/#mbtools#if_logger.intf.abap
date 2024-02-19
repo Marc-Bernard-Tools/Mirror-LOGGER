@@ -1,8 +1,9 @@
 INTERFACE /mbtools/if_logger
   PUBLIC.
-  DATA handle    TYPE balloghndl READ-ONLY.
-  DATA db_number TYPE balognr READ-ONLY.
-  DATA header    TYPE bal_s_log READ-ONLY.
+  DATA handle          TYPE balloghndl READ-ONLY.
+  DATA db_number       TYPE balognr READ-ONLY.
+  DATA header          TYPE bal_s_log READ-ONLY.
+  DATA control_handle  TYPE balcnthndl READ-ONLY.
 
   METHODS add
     IMPORTING
@@ -14,6 +15,7 @@ INTERFACE /mbtools/if_logger
       callback_parameters TYPE bal_t_par OPTIONAL
       type                TYPE symsgty OPTIONAL
       importance          TYPE balprobcl OPTIONAL
+      detlevel            TYPE ballevel OPTIONAL
         PREFERRED PARAMETER obj_to_log
     RETURNING
       VALUE(self)         TYPE REF TO /mbtools/if_logger.
@@ -27,6 +29,7 @@ INTERFACE /mbtools/if_logger
       callback_fm         TYPE csequence OPTIONAL
       callback_parameters TYPE bal_t_par OPTIONAL
       importance          TYPE balprobcl OPTIONAL
+      detlevel            TYPE ballevel OPTIONAL
         PREFERRED PARAMETER obj_to_log
     RETURNING
       VALUE(self)         TYPE REF TO /mbtools/if_logger.
@@ -40,6 +43,7 @@ INTERFACE /mbtools/if_logger
       callback_fm         TYPE csequence OPTIONAL
       callback_parameters TYPE bal_t_par OPTIONAL
       importance          TYPE balprobcl OPTIONAL
+      detlevel            TYPE ballevel OPTIONAL
         PREFERRED PARAMETER obj_to_log
     RETURNING
       VALUE(self)         TYPE REF TO /mbtools/if_logger.
@@ -53,6 +57,7 @@ INTERFACE /mbtools/if_logger
       callback_fm         TYPE csequence OPTIONAL
       callback_parameters TYPE bal_t_par OPTIONAL
       importance          TYPE balprobcl OPTIONAL
+      detlevel            TYPE ballevel OPTIONAL
         PREFERRED PARAMETER obj_to_log
     RETURNING
       VALUE(self)         TYPE REF TO /mbtools/if_logger.
@@ -66,6 +71,7 @@ INTERFACE /mbtools/if_logger
       callback_fm         TYPE csequence OPTIONAL
       callback_parameters TYPE bal_t_par OPTIONAL
       importance          TYPE balprobcl OPTIONAL
+      detlevel            TYPE ballevel OPTIONAL
         PREFERRED PARAMETER obj_to_log
     RETURNING
       VALUE(self)         TYPE REF TO /mbtools/if_logger.
@@ -79,6 +85,7 @@ INTERFACE /mbtools/if_logger
       callback_fm         TYPE csequence OPTIONAL
       callback_parameters TYPE bal_t_par OPTIONAL
       importance          TYPE balprobcl OPTIONAL
+      detlevel            TYPE ballevel OPTIONAL
         PREFERRED PARAMETER obj_to_log
     RETURNING
       VALUE(self)         TYPE REF TO /mbtools/if_logger.
@@ -111,16 +118,31 @@ INTERFACE /mbtools/if_logger
     RETURNING
       VALUE(rt_bapiret) TYPE bapirettab.
 
-  METHODS fullscreen.
+  METHODS fullscreen. " deprecated, use display_fullscreen
 
-  METHODS popup
+  METHODS display_fullscreen
     IMPORTING
       profile TYPE bal_s_prof OPTIONAL.
+
+  METHODS popup " deprecated, use display_as_popup
+    IMPORTING
+      profile TYPE bal_s_prof OPTIONAL.
+
+  METHODS display_as_popup
+    IMPORTING
+      profile TYPE bal_s_prof OPTIONAL.
+
+  METHODS display_in_container
+    IMPORTING
+      container TYPE REF TO cl_gui_container
+      profile   TYPE bal_s_prof OPTIONAL.
 
   METHODS set_header
     IMPORTING
       description TYPE bal_s_log-extnumber
     RETURNING
       VALUE(self) TYPE REF TO /mbtools/if_logger.
+
+  METHODS free.
 
 ENDINTERFACE.

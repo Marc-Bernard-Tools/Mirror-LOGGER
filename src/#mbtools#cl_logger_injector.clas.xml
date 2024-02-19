@@ -3,14 +3,14 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOCLASS>
-    <CLSNAME>/MBTOOLS/CL_LOGGER_SETTINGS</CLSNAME>
+    <CLSNAME>/MBTOOLS/CL_LOGGER_INJECTOR</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>ABAP Logger: Settings</DESCRIPT>
+    <DESCRIPT>ABAP Logger: Injector</DESCRIPT>
+    <CATEGORY>05</CATEGORY>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>
     <UNICODE>X</UNICODE>
-    <WITH_UNIT_TESTS>X</WITH_UNIT_TESTS>
    </VSEOCLASS>
   </asx:values>
  </asx:abap>
