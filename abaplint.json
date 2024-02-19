@@ -506,7 +506,7 @@
     },
     "line_length": {
       "exclude": [],
-      "length": 125,
+      "length": 150,
       "severity": "Error"
     },
     "line_only_punc": {
