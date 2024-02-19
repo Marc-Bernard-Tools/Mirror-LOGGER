@@ -434,7 +434,7 @@
       "severity": "Error"
     },
     "identical_contents": {
-      "exclude": [],
+      "exclude": [".*"],
       "severity": "Warning"
     },
     "identical_descriptions": {
