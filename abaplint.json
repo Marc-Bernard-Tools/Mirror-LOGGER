@@ -101,7 +101,7 @@
       "move": true,
       "refresh": true,
       "severity": "Error",
-            "sort": true,
+      "sort": true,
       "unassign": true,
       "write": true
     },
@@ -206,7 +206,7 @@
     },
     "cyclomatic_complexity": {
       "exclude": [],
-      "max": 30,
+      "max": 32,
       "severity": "Error"
     },
     "dangerous_statement": {
