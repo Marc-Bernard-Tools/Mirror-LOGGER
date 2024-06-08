@@ -745,7 +745,7 @@
       "severity": "Error"
     },
     "prefer_is_not": {
-      "exclude": [],
+      "exclude": [".*"],
       "severity": "Error"
     },
     "prefer_raise_exception_new": {
