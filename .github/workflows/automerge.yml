@@ -1,5 +1,6 @@
 name: Automerge
 on:
+  workflow_dispatch:
   pull_request:
     types:
       - labeled
@@ -17,6 +18,7 @@ on:
     types:
       - completed
   status: {}
+
 jobs:
   automerge:
     runs-on: ubuntu-latest
