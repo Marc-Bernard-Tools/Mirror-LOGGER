@@ -1,26 +1,23 @@
-name: Automerge
-on:
-  workflow_dispatch:
-  pull_request:
-    types:
-      - labeled
-      - unlabeled
-      - synchronize
-      - opened
-      - edited
-      - ready_for_review
-      - reopened
-      - unlocked
-  check_suite:
-    types:
-      - completed
+name: Automerge Dependabot
+
+on: pull_request
+
+permissions:
+  pull-requests: write
+  contents: write
 
 jobs:
   automerge:
     runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
     steps:
-      - name: Automerge
-        uses: pascalgn/automerge-action@v0.16.3
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          MERGE_METHOD: squash
+    - name: Auto Approve
+      if: steps.cpr.outputs.pull-request-operation == 'created'
+      run: gh pr review --approve "${{ steps.cpr.outputs.pull-request-number }}"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Automerge Pull Request
+      if: steps.cpr.outputs.pull-request-operation == 'created'
+      run: gh pr merge --merge --auto "1"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

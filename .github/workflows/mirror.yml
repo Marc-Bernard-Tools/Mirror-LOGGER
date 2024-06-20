@@ -5,11 +5,13 @@ on:
   schedule:
     - cron: '5 0 * * 0'
 
+permissions:
+  pull-requests: write
+  contents: write
+
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -23,7 +25,17 @@ jobs:
         npm run mirror
         git status
     - name: Open Pull Request
-      uses: peter-evans/create-pull-request@v5
+      id: cpr
+      uses: peter-evans/create-pull-request@v6
       with:
-        title: Automatic Update
-        labels: automerge
+        token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Auto Approve
+      if: steps.cpr.outputs.pull-request-operation == 'created'
+      run: gh pr review --approve "${{ steps.cpr.outputs.pull-request-number }}"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Automerge Pull Request
+      if: steps.cpr.outputs.pull-request-operation == 'created'
+      run: gh pr merge --merge --auto "1"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
