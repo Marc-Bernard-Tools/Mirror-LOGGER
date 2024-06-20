@@ -7,9 +7,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -23,7 +21,14 @@ jobs:
         npm run mirror
         git status
     - name: Open Pull Request
-      uses: peter-evans/create-pull-request@v5
+      id: cpr
+      uses: peter-evans/create-pull-request@v6
       with:
-        title: Automatic Update
-        labels: automerge
+        token: ${{ GITHUB_TOKEN }}
+    - name: Automerge Pull Request
+      if: steps.cpr.outputs.pull-request-operation == 'created'
+      uses: peter-evans/enable-pull-request-automerge@v3
+      with:
+        token: ${{ GITHUB_TOKEN }}
+        pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
+        merge-method: squash
