@@ -26,9 +26,11 @@ jobs:
         git status
     - name: Open Pull Request
       id: cpr
-      uses: peter-evans/create-pull-request@v6
+      uses: peter-evans/create-pull-request@v7
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
+        title: Automatic Update
+        labels: automerge
     - name: Auto Approve
       if: steps.cpr.outputs.pull-request-operation == 'created'
       run: gh pr review --approve "${{ steps.cpr.outputs.pull-request-number }}"
